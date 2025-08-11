@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   GoogleGenAI,
@@ -405,9 +404,11 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
         
         try {
             sessionRef.current = await ai.live.music.connect({
-                model: 'lyria-realtime-001',
-                sampleRate: 48000,
-                numChannels: 2,
+                model: 'lyria-realtime-exp',
+                config: {
+                    sampleRate: 48000,
+                    numChannels: 2,
+                },
                 callbacks: {
                     onmessage: async (e: LiveMusicServerMessage) => {
                         console.log('Received message from the server: %s\n', e);
