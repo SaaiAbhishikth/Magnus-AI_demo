@@ -1,7 +1,5 @@
 
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Routes, Route } from 'react-router-dom';
 import { GoogleGenAI, Type, Content } from '@google/genai';
 import { Sidebar } from './components/Sidebar';
 import { ChatWindow } from './components/ChatWindow';
@@ -13,7 +11,6 @@ import { LandingPage } from './components/LandingPage';
 import { HelpFAQModal } from './components/HelpFAQModal';
 import { ChallengeModal } from './components/ChallengeModal';
 import { DrivePicker } from './components/DrivePicker';
-import { PromptDJPage } from './components/PromptDJPage';
 import { type ChatMessage, MessageRole, type AgenticWorkflowState, type ChatSession, type User, type CustomizationSettings, Tool, type StudyGuide, type ChatFile, type TTSSettings, type WorkflowStep, Personality, UserGoal, AgentRole, type MultiAgentState, Action, type Challenge, ChallengeStatus, ChallengeType, UserStats } from './types';
 import { GEMINI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY, GOOGLE_APPS_SCRIPT_URL } from './config';
 
@@ -245,7 +242,7 @@ const defaultUserStats: UserStats = {
     lastChallengeCompletedDate: '',
 }
 
-const MainApp: React.FC = () => {
+const App: React.FC = () => {
   const ai = useMemo(() => {
     if (!GEMINI_API_KEY || GEMINI_API_KEY.includes('PASTE_YOUR')) {
       // Don't throw an error here, the configuration screen will handle it.
@@ -2217,13 +2214,5 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
     </div>
   );
 };
-
-const App: React.FC = () => (
-  <Routes>
-      <Route path="/promptdj" element={<PromptDJPage />} />
-      <Route path="*" element={<MainApp />} />
-  </Routes>
-);
-
 
 export default App;

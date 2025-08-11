@@ -20,6 +20,7 @@ import { GEMINI_API_KEY } from './config';
 
 const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
+  apiVersion: 'v1alpha',
 });
 let model = 'lyria-realtime-exp';
 
@@ -202,7 +203,7 @@ class WeightSlider extends LitElement {
   }
 
   private dispatchInputEvent() {
-    (this as unknown as HTMLElement).dispatchEvent(new CustomEvent<number>('input', {detail: this.value}));
+    this.dispatchEvent(new CustomEvent<number>('input', {detail: this.value}));
   }
 
   render() {
@@ -626,7 +627,7 @@ class PromptController extends LitElement {
   }
 
   private dispatchPromptChange() {
-    (this as unknown as HTMLElement).dispatchEvent(
+    this.dispatchEvent(
       new CustomEvent<Prompt>('prompt-changed', {
         detail: {
           promptId: this.promptId,
@@ -655,7 +656,7 @@ class PromptController extends LitElement {
   }
 
   private dispatchPromptRemoved() {
-    (this as unknown as HTMLElement).dispatchEvent(
+    this.dispatchEvent(
       new CustomEvent<string>('prompt-removed', {
         detail: this.promptId,
         bubbles: true,
@@ -1036,7 +1037,7 @@ class SettingsController extends LitElement {
   }
 
   private dispatchSettingsChange() {
-    (this as unknown as HTMLElement).dispatchEvent(
+    this.dispatchEvent(
       new CustomEvent<LiveMusicGenerationConfig>('settings-changed', {
         detail: this.config,
         bubbles: true,
@@ -1436,7 +1437,7 @@ class PromptDj extends LitElement {
   }, 200);
 
   private dispatchPromptsChange() {
-    (this as unknown as HTMLElement).dispatchEvent(
+    this.dispatchEvent(
       new CustomEvent('prompts-changed', {detail: this.prompts}),
     );
   }
@@ -1681,7 +1682,7 @@ function gen(parent: HTMLElement) {
   const initialPrompts = getStoredPrompts();
 
   const pdj = new PromptDj(initialPrompts);
-  parent.appendChild(pdj as unknown as Node);
+  parent.appendChild(pdj);
 }
 
 function getStoredPrompts(): Map<string, Prompt> {

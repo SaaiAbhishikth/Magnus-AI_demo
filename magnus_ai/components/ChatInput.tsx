@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { SendIcon, PlusIcon, ToolsIcon, XIcon, MicrophoneIcon, DocumentIcon, TrashIcon, PromptDJIcon, TheaterMasksIcon } from './icons/Icons';
 import { Tool, type ChatFile, type User, Personality } from '../types';
 import { ToolsMenu } from './ToolsMenu';
@@ -376,16 +375,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   </button>
                   {isPersonalityMenuOpen && <PersonalityMenu onSelect={handleSelectPersonality} />}
               </div>
-              <Link
-                  to="/promptdj"
-                  className={`p-1.5 rounded-lg text-text-secondary hover:bg-gray-700/60 hover:text-text-primary ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
-                  aria-disabled={disabled}
-                  onClick={(e) => { if (disabled) e.preventDefault(); }}
+               <a
+                  href="/promptdj.html"
+                  className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-700/60 hover:text-text-primary"
                   aria-label="Open PromptDJ"
                   title="Open PromptDJ"
               >
                   <PromptDJIcon className="w-5 h-5" />
-              </Link>
+              </a>
           </div>
 
           <textarea
