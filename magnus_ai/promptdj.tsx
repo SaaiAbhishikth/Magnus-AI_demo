@@ -15,8 +15,8 @@ import {
   type LiveMusicServerMessage,
   type LiveMusicSession,
 } from '@google/genai';
-import {decode, decodeAudioData} from './utils';
-import { GEMINI_API_KEY } from './config';
+import {decode, decodeAudioData} from './promptdj-utils.ts';
+import { GEMINI_API_KEY } from './config.ts';
 
 const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,

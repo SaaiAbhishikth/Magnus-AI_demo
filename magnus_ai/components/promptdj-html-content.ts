@@ -1,4 +1,3 @@
-
 // This file contains the HTML content for the PromptDJ tool.
 // It's embedded as a string to bypass SPA routing issues on platforms like Netlify.
 export const PROMPTDJ_HTML_CONTENT = `
@@ -10,7 +9,7 @@ export const PROMPTDJ_HTML_CONTENT = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PromptDJ</title>
     <link rel="stylesheet" href="/promptdj.css">
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="importmap">
       {
         "imports": {
@@ -19,10 +18,10 @@ export const PROMPTDJ_HTML_CONTENT = `
           "@google/genai": "https://esm.sh/@google/genai@^1.11.0"
         }
       }
-    <\/script>
+    </script>
   </head>
   <body>
-    <script type="text/babel" data-type="module" src="/promptdj.tsx"><\/script>
+    <script type="text/babel" data-type="module" src="/promptdj.tsx"></script>
   </body>
 </html>
 `;
