@@ -20,7 +20,6 @@ import { GEMINI_API_KEY } from './config';
 
 const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
-  apiVersion: 'v1alpha',
 });
 let model = 'lyria-realtime-exp';
 
