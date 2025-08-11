@@ -167,7 +167,66 @@ const WeightSlider: React.FC<{ value: number; color: string; onInput: (value: nu
     );
 };
 
-// ... Rest of the child components will be defined inside PromptDJTool for simplicity
+const AddButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+    return (
+        <div className="relative flex items-center justify-center w-[12vmin] flex-shrink-0">
+            <svg width="140" height="140" viewBox="0 -10 140 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="22" y="6" width="96" height="96" rx="48" fill="black" fillOpacity="0.05" />
+                <rect x="23.5" y="7.5" width="93" height="93" rx="46.5" stroke="black" strokeOpacity="0.3" strokeWidth="3" />
+                <g filter="url(#add-icon-filter)">
+                    <rect x="25" y="9" width="90" height="90" rx="45" fill="white" fillOpacity="0.05" shapeRendering="crispEdges" />
+                </g>
+                <path d="M67 40 H73 V52 H85 V58 H73 V70 H67 V58 H55 V52 H67 Z" fill="#FEFEFE" />
+                <defs>
+                    <filter id="add-icon-filter" x="0" y="0" width="140" height="140" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                        <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
+                        <feOffset dy="3" /><feGaussianBlur stdDeviation="1.5" /><feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+                        <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0" /><feBlend mode="normal" in2="shape" result="effect_innerShadow" />
+                    </filter>
+                </defs>
+            </svg>
+            <div onClick={onClick} className="absolute w-[65%] aspect-square top-[9%] rounded-full cursor-pointer"/>
+        </div>
+    );
+}
+
+const PlayPauseButton: React.FC<{ onClick: () => void; state: PlaybackState }> = ({ onClick, state }) => {
+  const isPlaying = state === 'playing';
+  const isLoading = state === 'loading';
+
+  const icon = isLoading ? (
+    <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+  ) : isPlaying ? (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+  ) : (
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-10 h-10"><path d="M8 5v14l11-7z"></path></svg>
+  );
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={isLoading}
+      className="w-20 h-20 rounded-full bg-accent hover:bg-accent-hover disabled:bg-gray-600 flex items-center justify-center text-white transition-colors shadow-lg"
+      aria-label={isPlaying ? "Pause" : "Play"}
+    >
+      {icon}
+    </button>
+  );
+};
+
+const ResetButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  return (
+    <button 
+      onClick={onClick}
+      className="w-16 h-16 rounded-full bg-secondary hover:bg-gray-700/60 flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors shadow-md"
+      title="Reset Audio Session"
+      aria-label="Reset Audio Session"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor" className="w-7 h-7"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"></path></svg>
+    </button>
+  );
+};
 
 // --- Main Component: PromptDJTool ---
 export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
@@ -190,11 +249,10 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
           overflow: hidden;
         }
         body.dragging-promptdj {
-          cursor: grabbing;
+          cursor: ns-resize;
         }
         body.dragging-promptdj * {
           user-select: none;
-          pointer-events: none;
         }
         .prompts-area {
           display: flex;
@@ -287,10 +345,6 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
         }
     }, 200), [prompts, filteredPrompts]);
     
-    // ... rest of the logic and components ...
-    
-    // --- Render logic for PromptDJTool ---
-    
     const background = useMemo(() => {
         const clamp01 = (v: number) => Math.min(Math.max(v, 0), 1);
         const bg: string[] = [];
@@ -343,11 +397,12 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
     }, []);
 
     const connectToSession = useCallback(async () => {
-        if (!apiKey) {
+        if (!apiKey || apiKey.includes('PASTE_YOUR')) {
             setToast({ show: true, message: 'API Key is not configured.' });
+            setPlaybackState('error');
             return;
         }
-        const ai = new GoogleGenAI({ apiKey, apiVersion: 'v1alpha' });
+        const ai = new GoogleGenAI({ apiKey });
         
         try {
             sessionRef.current = await ai.live.music.connect({
@@ -395,9 +450,9 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
                 },
             });
             await setSessionPrompts();
-        } catch(e) {
+        } catch(e: any) {
             console.error("Failed to connect to session", e);
-            setToast({ show: true, message: 'Failed to connect. Check console for details.' });
+            setToast({ show: true, message: `Failed to connect: ${e.message}` });
             setPlaybackState('error');
         }
 
@@ -406,6 +461,43 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
     useEffect(() => {
         setSessionPrompts();
     }, [prompts, setSessionPrompts]);
+
+    const handlePlayPause = useCallback(async () => {
+        if (playbackState === 'playing') {
+            audioContextRef.current?.suspend();
+            setPlaybackState('paused');
+        } else if (playbackState === 'paused') {
+            audioContextRef.current?.resume();
+            setPlaybackState('playing');
+        } else { // 'stopped' or 'error'
+            setPlaybackState('loading');
+            
+            const context = new (window.AudioContext || (window as any).webkitAudioContext)();
+            audioContextRef.current = context;
+            outputNodeRef.current = context.createGain();
+            outputNodeRef.current.connect(context.destination);
+
+            await connectToSession();
+        }
+    }, [playbackState, connectToSession]);
+
+    const handleReset = useCallback(async () => {
+        sessionRef.current?.close();
+        sessionRef.current = null;
+        audioContextRef.current?.close();
+        audioContextRef.current = null;
+        setPlaybackState('stopped');
+        setFilteredPrompts(new Set());
+        nextStartTimeRef.current = 0;
+    }, []);
+
+    useEffect(() => {
+      // Cleanup on unmount
+      return () => {
+        sessionRef.current?.close();
+        audioContextRef.current?.close();
+      }
+    }, []);
 
     return (
         <div className="prompt-dj-container">
@@ -425,16 +517,14 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
                     ))}
                 </div>
                  <div className="flex items-end h-full flex-shrink-0">
-                    <IconButton onClick={handleAddPrompt}>
-                        <path d="M67 40 H73 V52 H85 V58 H73 V70 H67 V58 H55 V52 H67 Z" fill="#FEFEFE" />
-                    </IconButton>
+                    <AddButton onClick={handleAddPrompt} />
                 </div>
             </div>
              <div className="flex-1 my-2 w-full max-w-4xl">
-                 {/* Settings Controller would go here if converted */}
              </div>
-             <div className="flex justify-center items-center flex-shrink-0">
-                 {/* Play/Pause and Reset buttons would go here */}
+             <div className="flex justify-center items-center flex-shrink-0 gap-8">
+                <ResetButton onClick={handleReset} />
+                <PlayPauseButton onClick={handlePlayPause} state={playbackState} />
              </div>
              {toast.show && (
                 <div className="line-height-6 fixed top-5 left-1/2 -translate-x-1/2 bg-black text-white p-4 rounded-md flex items-center justify-between gap-4 min-w-[200px] max-w-[80vw] z-[11]">
@@ -445,38 +535,6 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
         </div>
     );
 };
-
-const IconButton: React.FC<{ children: React.ReactNode, onClick: () => void }> = ({ children, onClick }) => {
-    return (
-        <div className="relative flex items-center justify-center w-[12vmin] flex-shrink-0">
-            <svg width="140" height="140" viewBox="0 -10 140 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="22" y="6" width="96" height="96" rx="48" fill="black" fillOpacity="0.05" />
-                <rect x="23.5" y="7.5" width="93" height="93" rx="46.5" stroke="black" strokeOpacity="0.3" strokeWidth="3" />
-                <g filter="url(#icon-filter)">
-                    <rect x="25" y="9" width="90" height="90" rx="45" fill="white" fillOpacity="0.05" shapeRendering="crispEdges" />
-                </g>
-                {children}
-                <defs>
-                    <filter id="icon-filter" x="0" y="0" width="140" height="140" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-                        <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                        <feOffset dy="2" /><feGaussianBlur stdDeviation="4" /><feComposite in2="hardAlpha" operator="out" />
-                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" /><feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                        <feOffset dy="16" /><feGaussianBlur stdDeviation="12.5" /><feComposite in2="hardAlpha" operator="out" />
-                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" /><feBlend mode="normal" in2="effect1_dropShadow" result="effect2_dropShadow" />
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect2_dropShadow" result="shape" />
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
-                        <feOffset dy="3" /><feGaussianBlur stdDeviation="1.5" /><feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-                        <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0" /><feBlend mode="normal" in2="shape" result="effect3_innerShadow" />
-                    </filter>
-                </defs>
-            </svg>
-            <div onClick={onClick} className="absolute w-[65%] aspect-square top-[9%] rounded-full cursor-pointer"/>
-        </div>
-    );
-}
-
 
 const PromptController: React.FC<{
     prompt: Prompt;
@@ -512,6 +570,7 @@ const PromptController: React.FC<{
             <button
                 onClick={() => onPromptRemoved(prompt.promptId)}
                 className="absolute top-[1.2vmin] left-[1.2vmin] bg-[#666] text-white border-none rounded-full w-[2.8vmin] h-[2.8vmin] text-[1.8vmin] flex items-center justify-center leading-[2.8vmin] cursor-pointer opacity-50 hover:opacity-100 transition-opacity z-10"
+                aria-label={`Remove prompt ${prompt.text}`}
             >
                 ×
             </button>
