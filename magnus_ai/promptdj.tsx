@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Control real time music with text prompts
  * @license
@@ -1020,7 +1021,7 @@ class SettingsController extends LitElement {
   updated(changedProperties: Map<string | symbol, unknown>) {
     super.updated(changedProperties);
     if (changedProperties.has('config')) {
-      (this as LitElement).shadowRoot
+      this.shadowRoot
         ?.querySelectorAll<HTMLInputElement>('input[type="range"]')
         .forEach((slider: HTMLInputElement) => {
           const configValue =
@@ -1461,7 +1462,7 @@ class PromptDj extends LitElement {
 
     this.setSessionPrompts();
 
-    (this as LitElement).requestUpdate();
+    this.requestUpdate();
     this.dispatchPromptsChange();
   }
 
@@ -1558,10 +1559,10 @@ class PromptDj extends LitElement {
 
     // Wait for the component to update and render the new prompt.
     // Do not dispatch the prompt change event until the user has edited the prompt text.
-    await (this as LitElement).updateComplete;
+    await this.updateComplete;
 
     // Find the newly added prompt controller element
-    const newPromptElement = (this as LitElement).renderRoot.querySelector<PromptController>(
+    const newPromptElement = this.renderRoot.querySelector<PromptController>(
       `prompt-controller[promptId="${newPromptId}"]`,
     );
     if (newPromptElement) {

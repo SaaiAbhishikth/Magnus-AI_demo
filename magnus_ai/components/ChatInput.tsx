@@ -377,6 +377,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               </div>
                <a
                   href="/promptdj.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-700/60 hover:text-text-primary"
                   aria-label="Open PromptDJ"
                   title="Open PromptDJ"
