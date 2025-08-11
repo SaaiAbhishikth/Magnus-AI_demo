@@ -1,11 +1,8 @@
 
 
-
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   GoogleGenAI,
-  type LiveMusicGenerationConfig,
   type LiveMusicServerMessage,
   type LiveMusicSession,
 } from '@google/genai';
@@ -407,7 +404,7 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
         const ai = new GoogleGenAI({ apiKey });
         
         try {
-            const musicConfig: LiveMusicGenerationConfig = {
+            const musicConfig = {
                 outputAudioConfig: {
                     sampleRate: 48000,
                     numChannels: 2,
