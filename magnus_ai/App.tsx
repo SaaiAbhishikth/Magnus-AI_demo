@@ -2207,6 +2207,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
             <PromptDJModal
                 isOpen={isPromptDJModalOpen}
                 onClose={() => setIsPromptDJModalOpen(false)}
+                apiKey={GEMINI_API_KEY || ''}
             />
             {isDrivePickerOpen && (
                 <DrivePicker
