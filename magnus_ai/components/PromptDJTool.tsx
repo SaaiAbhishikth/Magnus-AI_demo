@@ -1,6 +1,7 @@
 
 
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   GoogleGenAI,
@@ -406,10 +407,16 @@ export const PromptDJTool: React.FC<{ apiKey: string }> = ({ apiKey }) => {
         const ai = new GoogleGenAI({ apiKey });
         
         try {
+            const musicConfig: LiveMusicGenerationConfig = {
+                outputAudioConfig: {
+                    sampleRate: 48000,
+                    numChannels: 2,
+                },
+            };
+
             sessionRef.current = await ai.live.music.connect({
                 model: 'lyria-realtime-exp',
-                sampleRate: 48000,
-                numChannels: 2,
+                config: musicConfig,
                 callbacks: {
                     onmessage: async (e: LiveMusicServerMessage) => {
                         console.log('Received message from the server: %s\n', e);
