@@ -2170,7 +2170,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 setStagedFiles={setStagedFiles}
                 googleAccessToken={accessToken}
                 onConnectDrive={handleConnectDrive}
-                onOpenPromptDJ={() => setIsPromptDJModalOpen(true)}
+                onOpenPromptDJModal={() => setIsPromptDJModalOpen(true)}
                 />
             </main>
             <CustomizeModal 
@@ -2204,11 +2204,6 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 onSubmit={handleChallengeSubmit}
                 isLoading={isLoading}
             />
-            <PromptDJModal
-                isOpen={isPromptDJModalOpen}
-                onClose={() => setIsPromptDJModalOpen(false)}
-                apiKey={GEMINI_API_KEY || ''}
-            />
             {isDrivePickerOpen && (
                 <DrivePicker
                     isOpen={isDrivePickerOpen}
@@ -2219,6 +2214,10 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                     accessToken={accessToken}
                 />
             )}
+            <PromptDJModal
+                isOpen={isPromptDJModalOpen}
+                onClose={() => setIsPromptDJModalOpen(false)}
+            />
         </>
     </div>
   );

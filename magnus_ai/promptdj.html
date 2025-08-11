@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PromptDJ</title>
+    <link rel="stylesheet" href="/promptdj.css">
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "lit/": "https://esm.sh/lit@^3.3.0/",
+          "lit": "https://esm.sh/lit@^3.3.0",
+          "@google/genai": "https://esm.sh/@google/genai@^1.11.0"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <script type="text/babel" data-type="module" src="/promptdj.tsx"></script>
+  </body>
+</html>
