@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { GoogleGenAI, Type, Content } from '@google/genai';
 import { Sidebar } from './components/Sidebar';
@@ -11,6 +12,7 @@ import { LandingPage } from './components/LandingPage';
 import { HelpFAQModal } from './components/HelpFAQModal';
 import { ChallengeModal } from './components/ChallengeModal';
 import { DrivePicker } from './components/DrivePicker';
+import { PromptDJModal } from './components/PromptDJModal';
 import { type ChatMessage, MessageRole, type AgenticWorkflowState, type ChatSession, type User, type CustomizationSettings, Tool, type StudyGuide, type ChatFile, type TTSSettings, type WorkflowStep, Personality, UserGoal, AgentRole, type MultiAgentState, Action, type Challenge, ChallengeStatus, ChallengeType, UserStats } from './types';
 import { GEMINI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY, GOOGLE_APPS_SCRIPT_URL } from './config';
 
@@ -266,6 +268,7 @@ const App: React.FC = () => {
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
   const [isDrivePickerPending, setIsDrivePickerPending] = useState(false);
+  const [isPromptDJModalOpen, setIsPromptDJModalOpen] = useState(false);
   const [stagedFiles, setStagedFiles] = useState<ChatFile[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
@@ -2167,6 +2170,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 setStagedFiles={setStagedFiles}
                 googleAccessToken={accessToken}
                 onConnectDrive={handleConnectDrive}
+                onOpenPromptDJ={() => setIsPromptDJModalOpen(true)}
                 />
             </main>
             <CustomizeModal 
@@ -2199,6 +2203,10 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 challenge={activeChallenge}
                 onSubmit={handleChallengeSubmit}
                 isLoading={isLoading}
+            />
+            <PromptDJModal
+                isOpen={isPromptDJModalOpen}
+                onClose={() => setIsPromptDJModalOpen(false)}
             />
             {isDrivePickerOpen && (
                 <DrivePicker
