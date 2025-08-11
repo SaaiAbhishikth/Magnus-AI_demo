@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { GoogleGenAI, Type, Content } from '@google/genai';
@@ -2220,7 +2221,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
 const App: React.FC = () => (
   <Routes>
       <Route path="/promptdj" element={<PromptDJPage />} />
-      <Route path="/*" element={<MainApp />} />
+      <Route path="*" element={<MainApp />} />
   </Routes>
 );
 
