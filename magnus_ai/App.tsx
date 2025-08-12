@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { GoogleGenAI, Type, Content } from '@google/genai';
 import { Sidebar } from './components/Sidebar';
@@ -12,7 +13,8 @@ import { HelpFAQModal } from './components/HelpFAQModal';
 import { ChallengeModal } from './components/ChallengeModal';
 import { DrivePicker } from './components/DrivePicker';
 import { PromptDjPage } from './components/PromptDjPage';
-import { type ChatMessage, MessageRole, type AgenticWorkflowState, type ChatSession, type User, type CustomizationSettings, Tool, type StudyGuide, type ChatFile, type TTSSettings, type WorkflowStep, Personality, UserGoal, AgentRole, type MultiAgentState, Action, type Challenge, ChallengeStatus, ChallengeType, UserStats } from './types';
+import { CompilerPage } from './components/CompilerPage';
+import { type ChatMessage, MessageRole, type AgenticWorkflowState, type ChatSession, type User, type CustomizationSettings, Tool, type StudyGuide, type ChatFile, type TTSSettings, type WorkflowStep, Personality, UserGoal, AgentRole, type MultiAgentState, Action, type Challenge, ChallengeStatus, ChallengeType, UserStats, CompilerInfo } from './types';
 import { GEMINI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY, GOOGLE_APPS_SCRIPT_URL } from './config';
 
 declare const google: any; // Declare google for Google Identity Services
@@ -278,6 +280,7 @@ const App: React.FC = () => {
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
   const [isStudyModalOpen, setIsStudyModalOpen] = useState(false);
   const [isPromptDjOpen, setIsPromptDjOpen] = useState(false);
+  const [isCompilerOpen, setIsCompilerOpen] = useState(false);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -2095,6 +2098,10 @@ useEffect(() => {
     return <PromptDjPage onClose={() => setIsPromptDjOpen(false)} />;
   }
 
+  if (isCompilerOpen) {
+    return <CompilerPage ai={ai} onClose={() => setIsCompilerOpen(false)} />;
+  }
+
   if (!isConfigured) {
     return (
         <div className="bg-primary h-screen w-screen flex items-center justify-center text-center p-8">
@@ -2149,6 +2156,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
                 onOpenHelpModal={() => setIsHelpModalOpen(true)}
                 onOpenChallengeModal={handleOpenChallengeModal}
+                onOpenCompiler={() => setIsCompilerOpen(true)}
             />
             <main className="flex-1 flex flex-col h-screen">
                 <ChatWindow

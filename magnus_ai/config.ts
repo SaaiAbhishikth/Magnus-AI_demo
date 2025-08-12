@@ -10,4 +10,4 @@ export const GOOGLE_MAPS_API_KEY = "AIzaSyCchKBR-A3sjbZeEligPrPEqzSX8wv_prk";
 // For Microsoft services (OneDrive, SharePoint) to work, you need to register an app
 // in the Azure Active Directory portal.
 export const MICROSOFT_CLIENT_ID = "27999990-60e6-4088-a376-700f22d19af1";
-// ------------------------
+// ----
