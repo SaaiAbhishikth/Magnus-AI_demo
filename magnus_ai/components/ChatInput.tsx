@@ -1,5 +1,4 @@
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import { SendIcon, PlusIcon, ToolsIcon, XIcon, MicrophoneIcon, DocumentIcon, TrashIcon, PromptDJIcon, TheaterMasksIcon } from './icons/Icons';
 import { Tool, type ChatFile, type User, Personality } from '../types';
@@ -20,7 +19,7 @@ interface ChatInputProps {
   setStagedFiles: React.Dispatch<React.SetStateAction<ChatFile[]>>;
   googleAccessToken: string | null;
   onConnectDrive: () => void;
-  onOpenPromptDJModal: () => void;
+  onOpenPromptDj: () => void;
 }
 
 const StagedFilePreview: React.FC<{ file: ChatFile, onRemove: () => void }> = ({ file, onRemove }) => {
@@ -91,7 +90,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   setStagedFiles,
   googleAccessToken,
   onConnectDrive,
-  onOpenPromptDJModal,
+  onOpenPromptDj,
 }) => {
   const [input, setInput] = useState('');
   const [isToolsMenuOpen, setIsToolsMenuOpen] = useState(false);
@@ -379,7 +378,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                   {isPersonalityMenuOpen && <PersonalityMenu onSelect={handleSelectPersonality} />}
               </div>
                <button
-                  onClick={onOpenPromptDJModal}
+                  onClick={onOpenPromptDj}
                   className="p-1.5 rounded-lg text-text-secondary hover:bg-gray-700/60 hover:text-text-primary disabled:opacity-50"
                   disabled={disabled}
                   aria-label="Open PromptDJ"

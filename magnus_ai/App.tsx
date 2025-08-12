@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { GoogleGenAI, Type, Content } from '@google/genai';
 import { Sidebar } from './components/Sidebar';
@@ -12,7 +11,7 @@ import { LandingPage } from './components/LandingPage';
 import { HelpFAQModal } from './components/HelpFAQModal';
 import { ChallengeModal } from './components/ChallengeModal';
 import { DrivePicker } from './components/DrivePicker';
-import { PromptDJModal } from './components/PromptDJModal';
+import { PromptDjPage } from './components/PromptDjPage';
 import { type ChatMessage, MessageRole, type AgenticWorkflowState, type ChatSession, type User, type CustomizationSettings, Tool, type StudyGuide, type ChatFile, type TTSSettings, type WorkflowStep, Personality, UserGoal, AgentRole, type MultiAgentState, Action, type Challenge, ChallengeStatus, ChallengeType, UserStats } from './types';
 import { GEMINI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY, GOOGLE_APPS_SCRIPT_URL } from './config';
 
@@ -268,7 +267,6 @@ const App: React.FC = () => {
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
   const [isDrivePickerOpen, setIsDrivePickerOpen] = useState(false);
   const [isDrivePickerPending, setIsDrivePickerPending] = useState(false);
-  const [isPromptDJModalOpen, setIsPromptDJModalOpen] = useState(false);
   const [stagedFiles, setStagedFiles] = useState<ChatFile[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
@@ -279,6 +277,7 @@ const App: React.FC = () => {
   const [areVoicesLoaded, setAreVoicesLoaded] = useState(false);
   const [activeTool, setActiveTool] = useState<Tool | null>(null);
   const [isStudyModalOpen, setIsStudyModalOpen] = useState(false);
+  const [isPromptDjOpen, setIsPromptDjOpen] = useState(false);
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
@@ -2092,6 +2091,10 @@ useEffect(() => {
 
   const activeSession = useMemo(() => sessions.find(s => s.id === activeSessionId), [sessions, activeSessionId]);
 
+  if (isPromptDjOpen) {
+    return <PromptDjPage onClose={() => setIsPromptDjOpen(false)} />;
+  }
+
   if (!isConfigured) {
     return (
         <div className="bg-primary h-screen w-screen flex items-center justify-center text-center p-8">
@@ -2170,7 +2173,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 setStagedFiles={setStagedFiles}
                 googleAccessToken={accessToken}
                 onConnectDrive={handleConnectDrive}
-                onOpenPromptDJModal={() => setIsPromptDJModalOpen(true)}
+                onOpenPromptDj={() => setIsPromptDjOpen(true)}
                 />
             </main>
             <CustomizeModal 
@@ -2214,10 +2217,6 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                     accessToken={accessToken}
                 />
             )}
-            <PromptDJModal
-                isOpen={isPromptDJModalOpen}
-                onClose={() => setIsPromptDJModalOpen(false)}
-            />
         </>
     </div>
   );

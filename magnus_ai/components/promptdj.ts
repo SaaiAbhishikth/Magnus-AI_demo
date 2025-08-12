@@ -8,6 +8,7 @@ import {css, CSSResultGroup, html, LitElement, svg} from 'lit';
 import {customElement, property, query, state} from 'lit/decorators.js';
 import {classMap} from 'lit/directives/class-map.js';
 import {styleMap} from 'lit/directives/style-map.js';
+import type * as React from 'react';
 
 import {
   GoogleGenAI,
@@ -15,8 +16,8 @@ import {
   type LiveMusicServerMessage,
   type LiveMusicSession,
 } from '@google/genai';
-import {decode, decodeAudioData} from './utils';
-import { GEMINI_API_KEY } from './config';
+import {decode, decodeAudioData} from '../utils';
+import { GEMINI_API_KEY } from '../config';
 
 const ai = new GoogleGenAI({
   apiKey: GEMINI_API_KEY,
@@ -1740,3 +1741,21 @@ function main(container: HTMLElement) {
 }
 
 main(document.body);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'prompt-dj': PromptDj;
+    'prompt-controller': PromptController;
+    'settings-controller': SettingsController;
+    'add-prompt-button': AddPromptButton;
+    'play-pause-button': PlayPauseButton;
+    'reset-button': ResetButton;
+    'weight-slider': WeightSlider;
+    'toast-message': ToastMessage;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      'prompt-dj': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
