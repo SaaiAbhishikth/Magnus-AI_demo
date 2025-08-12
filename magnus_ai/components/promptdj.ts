@@ -1346,11 +1346,14 @@ class PromptDj extends LitElement {
   @query('toast-message') private toastMessage!: ToastMessage;
   @query('settings-controller') private settingsController!: SettingsController;
 
-  constructor(prompts: Map<string, Prompt>) {
+  constructor() {
     super();
-    this.prompts = prompts;
+    this.prompts = getStoredPrompts();
     this.nextPromptId = this.prompts.size;
     this.outputNode.connect(this.audioContext.destination);
+    this.addEventListener('prompts-changed', (e: any) => {
+        setStoredPrompts(e.detail);
+    });
   }
 
   async firstUpdated() {
@@ -1679,13 +1682,6 @@ class PromptDj extends LitElement {
   }
 }
 
-function gen(parent: HTMLElement) {
-  const initialPrompts = getStoredPrompts();
-
-  const pdj = new PromptDj(initialPrompts);
-  parent.appendChild(pdj);
-}
-
 function getStoredPrompts(): Map<string, Prompt> {
   const {localStorage} = window;
   const storedPrompts = localStorage.getItem('prompts');
@@ -1736,12 +1732,6 @@ function setStoredPrompts(prompts: Map<string, Prompt>) {
   localStorage.setItem('prompts', storedPrompts);
 }
 
-function main(container: HTMLElement) {
-  gen(container);
-}
-
-main(document.body);
-
 declare global {
   interface HTMLElementTagNameMap {
     'prompt-dj': PromptDj;
@@ -1752,10 +1742,5 @@ declare global {
     'reset-button': ResetButton;
     'weight-slider': WeightSlider;
     'toast-message': ToastMessage;
-  }
-  namespace JSX {
-    interface IntrinsicElements {
-      'prompt-dj': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
   }
 }

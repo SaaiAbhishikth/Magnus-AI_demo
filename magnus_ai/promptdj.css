@@ -1,17 +1,1 @@
-html, body {
-  height: 100%;
-  margin: 0;
-}
-body {
-  overflow: hidden;
-  background-color: #111;
-  color: #fff;
-  font-family: 'Roboto', 'Google Sans', sans-serif;
-}
-body.dragging {
-  cursor: grabbing;
-}
-body.dragging * {
-  user-select: none;
-  pointer-events: none;
-}
+/* This file is not used. Styles are injected by components/PromptDjPage.tsx */
