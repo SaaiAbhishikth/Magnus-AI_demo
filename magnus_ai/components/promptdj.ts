@@ -1228,7 +1228,7 @@ class SettingsController extends LitElement {
 
 /** Component for the PromptDJ UI. */
 @customElement('prompt-dj')
-class PromptDj extends LitElement {
+export class PromptDj extends LitElement {
   static styles = css`
     :host {
       height: 100%;
@@ -1537,7 +1537,8 @@ class PromptDj extends LitElement {
     );
   }
 
-  private stopAudio() {
+  public stopAudio() {
+    if (!this.session) return;
     this.session.stop();
     this.playbackState = 'stopped';
     this.outputNode.gain.setValueAtTime(this.outputNode.gain.value, this.audioContext.currentTime);

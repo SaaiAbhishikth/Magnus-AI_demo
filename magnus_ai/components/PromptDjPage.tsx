@@ -1,12 +1,13 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import './promptdj'; // This will execute the code and register the web components
 import { XIcon } from './icons/Icons';
+import { PromptDj } from './promptdj';
 
 declare global {
     namespace JSX {
         interface IntrinsicElements {
-            'prompt-dj': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+            'prompt-dj': React.DetailedHTMLProps<React.HTMLAttributes<PromptDj>, PromptDj>;
         }
     }
 }
@@ -38,6 +39,8 @@ interface PromptDjPageProps {
 }
 
 export const PromptDjPage: React.FC<PromptDjPageProps> = ({ onClose }) => {
+    const promptDjRef = useRef<PromptDj>(null);
+
     useEffect(() => {
         // Inject styles
         const styleElement = document.createElement('style');
@@ -62,16 +65,23 @@ export const PromptDjPage: React.FC<PromptDjPageProps> = ({ onClose }) => {
         };
     }, []);
 
+    const handleClose = () => {
+        if (promptDjRef.current?.stopAudio) {
+            promptDjRef.current.stopAudio();
+        }
+        onClose();
+    };
+
     return (
         <div style={{ height: '100vh', width: '100vw', position: 'fixed', top: 0, left: 0, zIndex: 50, backgroundColor: '#111' }}>
             <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition-colors"
                 aria-label="Close PromptDJ"
             >
                 <XIcon className="w-6 h-6" />
             </button>
-            <prompt-dj></prompt-dj>
+            <prompt-dj ref={promptDjRef}></prompt-dj>
         </div>
     );
 };
