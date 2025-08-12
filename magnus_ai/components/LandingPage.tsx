@@ -1,8 +1,13 @@
-import React from 'react';
-import { MagnusIcon, ThoughtIcon, GlobeAltIcon, CheckIcon, UsersIcon, BoltIcon, MusicNoteIcon, TerminalIcon, UserIcon } from './icons/Icons';
+import React, { useState, useRef, useEffect } from 'react';
+import { MagnusIcon, ThoughtIcon, GlobeAltIcon, CheckIcon, UsersIcon, BoltIcon, MusicNoteIcon, TerminalIcon, UserIcon, LogoutIcon } from './icons/Icons';
+import { type User } from '../types';
 
 interface LandingPageProps {
   onLogin: () => void;
+  onContinueAsGuest: () => void;
+  user: User | null;
+  onGoToChat: () => void;
+  onLogout: () => void;
 }
 
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode; }> = ({ icon, title, children }) => (
@@ -16,7 +21,20 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: Re
 );
 
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onContinueAsGuest, user, onGoToChat, onLogout }) => {
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+    const profileMenuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+                setIsProfileMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     return (
         <div className="bg-primary text-text-primary min-h-screen">
              <style>{`
@@ -42,12 +60,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                             <MagnusIcon className="w-8 h-8" />
                             <h1 className="text-xl font-bold text-text-primary">Magnus AI</h1>
                         </div>
-                        <button
-                            onClick={onLogin}
-                            className="px-5 py-2.5 text-sm font-semibold text-text-primary bg-secondary/50 border border-gray-700/50 rounded-lg hover:bg-secondary transition-colors"
-                        >
-                            Login with Google
-                        </button>
+                        {user ? (
+                             <div className="relative" ref={profileMenuRef}>
+                                <button onClick={() => setIsProfileMenuOpen(prev => !prev)} className="flex items-center gap-3 p-1 rounded-lg hover:bg-secondary/50 transition-colors">
+                                    {user.picture && <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full" />}
+                                    <span className="text-sm font-semibold hidden sm:block">{user.name}</span>
+                                </button>
+                                {isProfileMenuOpen && (
+                                    <div className="absolute top-full right-0 mt-2 w-48 bg-secondary rounded-lg shadow-lg border border-gray-700/50 p-2 z-20">
+                                        <button
+                                            onClick={onLogout}
+                                            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-left text-sm text-text-primary hover:bg-gray-700/60"
+                                        >
+                                            <LogoutIcon className="w-5 h-5 text-text-secondary" />
+                                            <span>Sign Out</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <button
+                                onClick={onLogin}
+                                className="px-5 py-2.5 text-sm font-semibold text-text-primary bg-secondary/50 border border-gray-700/50 rounded-lg hover:bg-secondary transition-colors"
+                            >
+                                Login with Google
+                            </button>
+                        )}
                     </div>
                 </header>
 
@@ -66,13 +104,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                         <p style={{ animationDelay: '0.3s' }} className="text-lg md:text-xl text-text-secondary mb-10 max-w-2xl mx-auto animate-slide-in-up">
                             Go beyond simple answers. Magnus AI uses advanced reasoning, integrates with your tools, and personalizes your experience.
                         </p>
-                        <button
-                            onClick={onLogin}
-                            style={{ animationDelay: '0.4s' }}
-                            className="px-8 py-4 text-lg font-bold text-white bg-accent rounded-lg hover:bg-accent-hover transition-transform transform hover:scale-105 animate-slide-in-up"
-                        >
-                            Signup with Google
-                        </button>
+                        <div style={{ animationDelay: '0.4s' }} className="animate-slide-in-up">
+                           {user ? (
+                                <button
+                                    onClick={onGoToChat}
+                                    className="px-8 py-4 text-lg font-bold text-white bg-accent rounded-lg hover:bg-accent-hover transition-transform transform hover:scale-105"
+                                >
+                                    Go to Chat
+                                </button>
+                           ) : (
+                            <>
+                                <button
+                                    onClick={onLogin}
+                                    className="px-8 py-4 text-lg font-bold text-white bg-accent rounded-lg hover:bg-accent-hover transition-transform transform hover:scale-105"
+                                >
+                                    Signup with Google
+                                </button>
+                                <p className="mt-4 text-sm text-text-secondary">
+                                    or{' '}
+                                    <button onClick={onContinueAsGuest} className="font-bold text-accent-hover hover:underline focus:outline-none">
+                                        Continue as a Guest
+                                    </button>
+                                </p>
+                            </>
+                           )}
+                        </div>
                     </div>
                 </main>
             </div>
@@ -89,7 +145,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                            See how Magnus thinks with a step-by-step workflow, or deploy a team of AI experts to tackle complex problems collaboratively.
                         </FeatureCard>
                         <FeatureCard icon={<BoltIcon className="w-6 h-6"/>} title="Seamless Integration">
-                           Sign in with Google to sync chats. Magnus can schedule meetings, send emails via Gmail, and access your Google Drive files on your behalf.
+                           Continue as a guest or sign in with Google. A Google account is required to sync chats and use integrations like Calendar and Drive.
                         </FeatureCard>
                         <FeatureCard icon={<MusicNoteIcon className="w-6 h-6"/>} title="Creative Suite">
                            Generate music concepts, create comprehensive study guides, or take control of a real-time music stream with the PromptDJ tool.
@@ -98,7 +154,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                            Generate code in any language, get detailed explanations, and see simulated output instantly in the built-in compiler.
                         </FeatureCard>
                         <FeatureCard icon={<UserIcon className="w-6 h-6"/>} title="Personalized Experience">
-                           Customize Magnus's personality, set and track personal goals, and interact naturally with voice commands and configurable text-to-speech.
+                           Tailor Magnus's personality, set and track goals, and use voice commands. Sign in to save your personalizations across all your devices.
                         </FeatureCard>
                         <FeatureCard icon={<GlobeAltIcon className="w-6 h-6"/>} title="Information Hub">
                            Get up-to-date answers from the web with citations, find locations on a map, or search and play YouTube videos directly in the chat.

@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useRef } from 'react';
 import './promptdj'; // This will execute the code and register the web components
 import { XIcon } from './icons/Icons';

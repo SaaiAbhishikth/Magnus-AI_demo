@@ -1,5 +1,8 @@
 
 
+
+
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { GoogleGenAI, Type, Content } from '@google/genai';
 import { Sidebar } from './components/Sidebar';
@@ -19,6 +22,12 @@ import { GEMINI_API_KEY, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY, GOOGLE_APPS_SCRI
 
 declare const google: any; // Declare google for Google Identity Services
 
+const GUEST_USER: User = {
+    id: 'guest',
+    name: 'Guest',
+    email: 'guest@magnus.ai',
+    picture: '', // Picture is empty so it falls back to the default icon
+};
 
 /**
  * Filters and maps the chat history to a format compatible with the Gemini API.
@@ -287,15 +296,21 @@ const App: React.FC = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<Action | null>(null);
   const tokenClient = useRef<any | null>(null);
+  const [showLandingOverride, setShowLandingOverride] = useState(false);
 
   const getStorageKey = useCallback((base: string) => {
-    return user ? `${base}_${user.id}` : `${base}_guest`;
+    // If user exists AND is not the guest user, use their specific ID.
+    // Otherwise (user is null OR user is the guest), use the generic 'guest' key.
+    if (user && user.id !== 'guest') {
+        return `${base}_${user.id}`;
+    }
+    return `${base}_guest`;
   }, [user]);
 
   const loadDataForUser = useCallback((targetUser: User | null) => {
-    const sessionsKey = targetUser ? `chatSessions_${targetUser.id}` : 'chatSessions_guest';
-    const activeIdKey = targetUser ? `activeSessionId_${targetUser.id}` : 'activeSessionId_guest';
-    const settingsKey = targetUser ? `customizationSettings_${targetUser.id}` : null;
+    const sessionsKey = getStorageKey('chatSessions');
+    const activeIdKey = getStorageKey('activeSessionId');
+    const settingsKey = getStorageKey('customizationSettings');
     const ttsKey = getStorageKey('ttsSettings');
     const challengesKey = getStorageKey('challenges');
     const userStatsKey = getStorageKey('userStats');
@@ -326,14 +341,10 @@ const App: React.FC = () => {
       setActiveSessionId(newSession.id);
     }
     
-    if (settingsKey) {
-        const savedSettingsRaw = localStorage.getItem(settingsKey);
-        if (savedSettingsRaw) {
-            const parsed = JSON.parse(savedSettingsRaw);
-            setCustomizationSettings({ ...defaultCustomizationSettings, ...parsed });
-        } else {
-            setCustomizationSettings(defaultCustomizationSettings);
-        }
+    const savedSettingsRaw = localStorage.getItem(settingsKey);
+    if (savedSettingsRaw) {
+        const parsed = JSON.parse(savedSettingsRaw);
+        setCustomizationSettings({ ...defaultCustomizationSettings, ...parsed });
     } else {
         setCustomizationSettings(defaultCustomizationSettings);
     }
@@ -375,6 +386,13 @@ const App: React.FC = () => {
       }
   }, [user, isInitializing, loadDataForUser]);
 
+  // Effect to handle navigation after login
+  useEffect(() => {
+    if (user && !isInitializing) {
+        setShowLandingOverride(false);
+    }
+  }, [user, isInitializing]);
+
   // Effect to initialize Google Sign-In, runs only once on mount.
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('PASTE_YOUR') || typeof google === 'undefined') {
@@ -386,16 +404,20 @@ const App: React.FC = () => {
         if (!userData) return;
         const newUser: User = { id: userData.sub, name: userData.name, email: userData.email, picture: userData.picture };
         
-        const guestSessionsRaw = localStorage.getItem('chatSessions_guest');
+        const guestSessionsKey = 'chatSessions_guest';
+        const guestSessionsRaw = localStorage.getItem(guestSessionsKey);
         const userSessionsKey = `chatSessions_${newUser.id}`;
         const userSessionsRaw = localStorage.getItem(userSessionsKey);
+        
         if (guestSessionsRaw && !userSessionsRaw) {
           localStorage.setItem(userSessionsKey, guestSessionsRaw);
-          localStorage.removeItem('chatSessions_guest');
-          const guestActiveId = localStorage.getItem('activeSessionId_guest');
+          localStorage.removeItem(guestSessionsKey);
+          
+          const guestActiveIdKey = 'activeSessionId_guest';
+          const guestActiveId = localStorage.getItem(guestActiveIdKey);
           if (guestActiveId) {
             localStorage.setItem(`activeSessionId_${newUser.id}`, guestActiveId);
-            localStorage.removeItem('activeSessionId_guest');
+            localStorage.removeItem(guestActiveIdKey);
           }
         }
         localStorage.setItem('user', JSON.stringify(newUser));
@@ -585,6 +607,18 @@ const App: React.FC = () => {
     }
   }, []);
 
+  const handleContinueAsGuest = () => {
+    setUser(GUEST_USER);
+  };
+
+  const handleGoHome = () => {
+    setShowLandingOverride(true);
+  };
+
+  const handleGoToChat = () => {
+    setShowLandingOverride(false);
+  };
+
   const handleSelectChat = useCallback((sessionId: string) => {
     setActiveSessionId(sessionId);
     setActiveTool(null);
@@ -606,9 +640,8 @@ const App: React.FC = () => {
   
   const handleSaveCustomization = (newSettings: CustomizationSettings) => {
     setCustomizationSettings(newSettings);
-    if(user) {
-        localStorage.setItem(`customizationSettings_${user.id}`, JSON.stringify(newSettings));
-    }
+    const settingsKey = getStorageKey('customizationSettings');
+    localStorage.setItem(settingsKey, JSON.stringify(newSettings));
     setIsCustomizeModalOpen(false);
   }
 
@@ -1883,6 +1916,10 @@ useEffect(() => {
 }, [accessToken, pendingAction, executeAction]);
 
     const handleConnectDrive = () => {
+        if (user?.id === 'guest') {
+            alert("Please sign in with Google to connect Google Drive.");
+            return;
+        }
         if (accessToken) {
             setIsDrivePickerOpen(true);
         } else {
@@ -2134,8 +2171,14 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
     );
   }
 
-  if (!user) {
-      return <LandingPage onLogin={handleLogin} />;
+  if (!user || showLandingOverride) {
+      return <LandingPage 
+        onLogin={handleLogin} 
+        onContinueAsGuest={handleContinueAsGuest} 
+        user={user}
+        onGoToChat={handleGoToChat}
+        onLogout={handleLogout}
+      />;
   }
 
   return (
@@ -2152,6 +2195,7 @@ export const GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";`}
                 userStats={userStats}
                 onLogin={handleLogin}
                 onLogout={handleLogout}
+                onGoHome={handleGoHome}
                 onOpenCustomizeModal={() => setIsCustomizeModalOpen(true)}
                 onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
                 onOpenHelpModal={() => setIsHelpModalOpen(true)}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MagnusIcon, ChatBubbleIcon, PlusIcon, UserIcon, TrashIcon, LogoutIcon, TrophyIcon, StarIcon, FireIcon, TerminalIcon } from './icons/Icons';
+import { MagnusIcon, ChatBubbleIcon, PlusIcon, UserIcon, TrashIcon, LogoutIcon, TrophyIcon, StarIcon, FireIcon, TerminalIcon, GuestIcon } from './icons/Icons';
 import { type ChatSession, type User, type UserStats } from '../types';
 import { UserProfileMenu } from './UserProfileMenu';
 
@@ -14,6 +14,7 @@ interface SidebarProps {
   userStats: UserStats;
   onLogin: () => void;
   onLogout: () => void;
+  onGoHome: () => void;
   onOpenCustomizeModal: () => void;
   onOpenSettingsModal: () => void;
   onOpenHelpModal: () => void;
@@ -38,7 +39,7 @@ const ParsedText: React.FC<{ text: string }> = ({ text }) => {
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   onNewChat, sessions, activeSessionId, onSelectChat, onDeleteChat, 
-  disabled = false, user, userStats, onLogin, onLogout, onOpenCustomizeModal,
+  disabled = false, user, userStats, onLogin, onLogout, onGoHome, onOpenCustomizeModal,
   onOpenSettingsModal, onOpenHelpModal, onOpenChallengeModal, onOpenCompiler
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -78,10 +79,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="w-64 bg-secondary flex flex-col p-4 border-r border-gray-700/50">
-      <div className="flex items-center gap-2 mb-2">
+      <button onClick={onGoHome} className="flex items-center gap-2 mb-2 text-left w-full hover:opacity-80 transition-opacity focus:outline-none ring-accent/50 focus-visible:ring-2 rounded-md">
         <MagnusIcon className="w-8 h-8" />
         <h1 className="text-xl font-bold text-text-primary">Magnus AI</h1>
-      </div>
+      </button>
       
       <div className="flex items-center gap-4 mb-4 pl-1">
           <div className="flex items-center gap-1.5 text-sm text-text-secondary" title={`${userStats.points} Points`}>
@@ -158,27 +159,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div ref={menuRef} className="mt-auto pt-4 border-t border-gray-700/50 relative">
         {user ? (
-          <>
-            <button 
-              onClick={() => setIsMenuOpen(prev => !prev)}
+          user.id === 'guest' ? (
+            <button
+              onClick={onLogin}
               className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-left text-sm hover:bg-gray-700/50 transition-colors"
             >
-              <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full" />
+              <div className="w-7 h-7 rounded-full bg-gray-600 flex items-center justify-center">
+                <GuestIcon className="w-5 h-5 text-white" />
+              </div>
               <div className='flex-1 truncate'>
-                <span className="font-medium text-text-primary block truncate">{user.name}</span>
-                <span className="text-xs text-text-secondary block truncate">{user.email}</span>
+                <span className="font-medium text-text-primary block truncate">Guest</span>
+                <span className="text-xs text-text-secondary block truncate">Sign in to save chats</span>
               </div>
             </button>
-            {isMenuOpen && (
-              <UserProfileMenu 
-                user={user}
-                onLogout={handleLogout}
-                onCustomize={handleCustomize}
-                onOpenSettings={handleOpenSettings}
-                onOpenHelp={handleOpenHelp}
-              />
-            )}
-          </>
+          ) : (
+            <>
+              <button 
+                onClick={() => setIsMenuOpen(prev => !prev)}
+                className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-left text-sm hover:bg-gray-700/50 transition-colors"
+              >
+                <img src={user.picture} alt={user.name} className="w-7 h-7 rounded-full" />
+                <div className='flex-1 truncate'>
+                  <span className="font-medium text-text-primary block truncate">{user.name}</span>
+                  <span className="text-xs text-text-secondary block truncate">{user.email}</span>
+                </div>
+              </button>
+              {isMenuOpen && (
+                <UserProfileMenu 
+                  user={user}
+                  onLogout={handleLogout}
+                  onCustomize={handleCustomize}
+                  onOpenSettings={handleOpenSettings}
+                  onOpenHelp={handleOpenHelp}
+                />
+              )}
+            </>
+          )
         ) : (
           <div className="w-full">
             <button
